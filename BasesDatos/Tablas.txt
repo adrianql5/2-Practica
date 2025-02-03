@@ -1,0 +1,292 @@
+--Seccion para construir las tablas
+CREATE TABLE Clientes (
+    idCliente INT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    numeroTelefono VARCHAR(12)
+);
+
+CREATE TABLE Platos ( 
+    nombre VARCHAR(30) PRIMARY KEY,
+    precio DECIMAL(10, 2) NOT NULL,
+    tiempoPreparacion INT NOT null
+);
+
+CREATE TABLE Ingredientes (
+    plato VARCHAR(30),
+    ingrediente VARCHAR(30),
+    PRIMARY KEY (plato, ingrediente),
+    CONSTRAINT fk_plato FOREIGN KEY (plato) REFERENCES Platos(nombre) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+
+CREATE TABLE Restaurantes (
+    direccion VARCHAR(50) PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    aforo INT NOT NULL,
+    horarioApertura TIME NOT NULL,
+    horarioCierre TIME NOT null
+);
+
+
+CREATE TABLE EmpresasProveedoras (
+    nombre VARCHAR(50) PRIMARY KEY,
+    direccion VARCHAR(50) NOT NULL,
+    numeroTelefono VARCHAR(12) NOT null
+);
+
+
+CREATE TABLE Proveer (
+    proveedor VARCHAR(50),
+    restaurante VARCHAR(50),
+    ingredientes VARCHAR(30),
+    fechaHoraEntrega TIMESTAMP,
+    precio DECIMAL(10, 2) NOT NULL,
+    tipoTransporte VARCHAR(20) NOT NULL,
+    PRIMARY KEY (proveedor, restaurante, fechaHoraEntrega),
+    CONSTRAINT fk_proveedor FOREIGN KEY (proveedor) REFERENCES EmpresasProveedoras(nombre) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_restaurante FOREIGN KEY (restaurante) REFERENCES Restaurantes(direccion) ON DELETE CASCADE ON UPDATE cascade
+);
+
+
+CREATE TABLE Encargados (
+    dni VARCHAR(9) PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido1 VARCHAR(50) NOT NULL,
+    apellido2 VARCHAR(50),
+    turno VARCHAR(6) NOT NULL,
+    numeroTelefono VARCHAR(12) NOT NULL,
+    curriculumVitae TEXT NOT NULL,
+    restaurante VARCHAR(50),
+    fechaComienzo DATE,
+    salario DECIMAL(6,2) NOT NULL,
+    CONSTRAINT fk_restaurante_encargado FOREIGN KEY (restaurante) REFERENCES Restaurantes(direccion) ON DELETE CASCADE ON UPDATE cascade
+);
+
+
+CREATE TABLE Cocineros (
+    dni VARCHAR(9) PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido1 VARCHAR(50) NOT NULL,
+    apellido2 VARCHAR(50),
+    turno VARCHAR(6) NOT NULL,
+    numeroTelefono VARCHAR(12) NOT NULL,
+    curriculumVitae TEXT NOT NULL,
+    restaurante VARCHAR(50),
+    fechaComienzo DATE,
+    salario DECIMAL(6,2) NOT NULL,
+    idChef VARCHAR(9),
+    CONSTRAINT fk_restaurante_cocinero FOREIGN KEY (restaurante) REFERENCES Restaurantes(direccion) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_chef FOREIGN KEY (idChef) REFERENCES Cocineros(dni) ON DELETE CASCADE ON UPDATE cascade
+);
+
+
+CREATE TABLE Camareros (
+    dni VARCHAR(9) PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    apellido1 VARCHAR(50) NOT NULL,
+    apellido2 VARCHAR(50),
+    turno VARCHAR(6) NOT NULL,
+    numeroTelefono VARCHAR(12) NOT NULL,
+    curriculumVitae TEXT NOT NULL,
+    restaurante VARCHAR(50),
+    fechaComienzo DATE,
+    salario DECIMAL(6,2) NOT NULL,
+    CONSTRAINT fk_restaurante_camarero FOREIGN KEY (restaurante) REFERENCES Restaurantes(direccion) ON DELETE CASCADE ON UPDATE cascade
+);
+
+
+CREATE TABLE Pedir (
+    nombre VARCHAR(30),
+    camarero VARCHAR(9),
+    idCliente INTEGER,
+    idPedido INT NOT null,
+    PRIMARY KEY (idPedido),
+    CONSTRAINT fk_nombre_plato FOREIGN KEY (nombre) REFERENCES Platos(nombre) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_id_cliente FOREIGN KEY (idCliente) REFERENCES Clientes(idCliente) ON DELETE CASCADE ON UPDATE cascade,
+    CONSTRAINT fk_camarero FOREIGN KEY (camarero) REFERENCES Camareros(dni) ON DELETE CASCADE ON UPDATE cascade
+);
+
+
+CREATE TABLE Reservar (
+    idCliente INT,
+    direccion VARCHAR(50),
+    fechaHoraRealizacion TIMESTAMP,
+    numeroPersonas INT NOT NULL,
+    fechaHoraReserva TIMESTAMP NOT NULL,
+    primary KEY (idCliente, direccion, fechaHoraRealizacion),
+    CONSTRAINT fk_direccion_restaurante FOREIGN KEY (direccion) REFERENCES Restaurantes(direccion) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_id_cliente_reserva FOREIGN KEY (idCliente) REFERENCES Clientes(idCliente) ON DELETE CASCADE ON UPDATE cascade
+);
+
+
+--Seccion para insertar los datos en las tablas
+INSERT INTO Clientes (idCliente, nombre, numeroTelefono) VALUES (1, 'Juan', '34673790350');
+INSERT INTO Clientes (idCliente, nombre, numeroTelefono) VALUES (2, 'Maria', '34677670350');
+INSERT INTO Clientes (idCliente, nombre, numeroTelefono) VALUES (3, 'Marcos', '34665470350');
+INSERT INTO Clientes (idCliente, nombre, numeroTelefono) VALUES (4, 'Isabel', '34673876550');
+INSERT INTO Clientes (idCliente, nombre, numeroTelefono) VALUES (5, 'Daniel', '34673657450');
+INSERT INTO Clientes (idCliente, nombre, numeroTelefono) VALUES (6, 'Antonio', '34678776350');
+INSERT INTO Clientes (idCliente, nombre, numeroTelefono) VALUES (7, 'Carlos', '34678764350');
+INSERT INTO Clientes (idCliente, nombre, numeroTelefono) VALUES (8, 'Pablo', '34679213350');
+INSERT INTO Clientes (idCliente, nombre, numeroTelefono) VALUES (9, 'Adrian', '34673797584');
+
+INSERT INTO Platos (nombre, precio, tiempoPreparacion) VALUES ('Pizza', 9.99, 20);
+INSERT INTO Platos (nombre, precio, tiempoPreparacion) VALUES ('Hamburguesa', 7.99, 15);
+INSERT INTO Platos (nombre, precio, tiempoPreparacion) VALUES ('Ensalada', 4.99, 10);
+INSERT INTO Platos (nombre, precio, tiempoPreparacion) VALUES ('Sushi', 12.95, 10);
+INSERT INTO Platos (nombre, precio, tiempoPreparacion) VALUES ('Entrecot', 20.99, 25);
+INSERT INTO Platos (nombre, precio, tiempoPreparacion) VALUES ('Cobe', 50.99, 25);
+INSERT INTO Platos (nombre, precio, tiempoPreparacion) VALUES ('Cocido', 24.99, 50);
+INSERT INTO Platos (nombre, precio, tiempoPreparacion) VALUES ('Pisto', 27.99, 20);
+INSERT INTO Platos (nombre, precio, tiempoPreparacion) VALUES ('Cafe', 2.99, 2);
+
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Pizza', 'Harina');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Pizza', 'Tomate');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Pizza', 'Queso');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Pizza', 'Mozzarella');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Sushi', 'Pescado');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Sushi', 'Arroz');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Sushi', 'Alga nori');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Sushi', 'Salsa de soja');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Entrecot', 'Vaca');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Entrecot', 'Sal');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Entrecot', 'Pimienta');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Entrecot', 'Aceite de oliva');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Hamburguesa', 'Pan');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Hamburguesa', 'Carne');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Hamburguesa', 'Lechuga');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Hamburguesa', 'Tomate');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cobe', 'Cobe');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cobe', 'Sal');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cobe', 'Pimienta');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cobe', 'Aceite de oliva');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cocido', 'Garbanzos');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cocido', 'Chorizo');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cocido', 'Morcilla');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cocido', 'Patata');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Pisto', 'Calabacin');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Pisto', 'Tomate');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Pisto', 'Pimiento');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Pisto', 'Cebolla');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cafe', 'Grano de cafe');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cafe', 'Agua');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Cafe', 'Azúcar');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Ensalada', 'Lechuga');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Ensalada', 'Tomate');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Ensalada', 'Cebolla');
+INSERT INTO Ingredientes (plato, ingrediente) VALUES ('Ensalada', 'Aceite de oliva');
+
+INSERT INTO Restaurantes (direccion, nombre, aforo, horarioApertura, horarioCierre) VALUES ('Rua de Conxo de Arriba, 49', 'Restaurante A', 50, '10:00', '22:00');
+INSERT INTO Restaurantes (direccion, nombre, aforo, horarioApertura, horarioCierre) VALUES ('Av. Barcelona, 20', 'Restaurante B', 55, '12:00', '23:00');
+INSERT INTO Restaurantes (direccion, nombre, aforo, horarioApertura, horarioCierre) VALUES ('Rua de Santa Marta de Arriba, 15', 'Restaurante C', 45, '11:00', '21:00');
+INSERT INTO Restaurantes (direccion, nombre, aforo, horarioApertura, horarioCierre) VALUES ('Avenida do Mestre Mateo, 13', 'Restaurante A', 40, '09:00', '21:00');
+INSERT INTO Restaurantes (direccion, nombre, aforo, horarioApertura, horarioCierre) VALUES ('Rua da Rosa, 12', 'Restaurante B', 60, '07:00', '20:00');
+INSERT INTO Restaurantes (direccion, nombre, aforo, horarioApertura, horarioCierre) VALUES ('Rua de Montero Rios, 24', 'Restaurante C', 65, '06:00', '19:00');
+INSERT INTO Restaurantes (direccion, nombre, aforo, horarioApertura, horarioCierre) VALUES ('Rua de San Roque, 31', 'Restaurante A', 70, '06:00', '17:00');
+INSERT INTO Restaurantes (direccion, nombre, aforo, horarioApertura, horarioCierre) VALUES ('Calle de Garcia Blanco, 10', 'Restaurante B', 35, '12:00', '00:00');
+INSERT INTO Restaurantes (direccion, nombre, aforo, horarioApertura, horarioCierre) VALUES ('Rua de Sar, 50', 'Restaurante C', 75, '16:00', '03:00');
+
+INSERT INTO EmpresasProveedoras (nombre, direccion, numeroTelefono) VALUES ('Proveedor A', 'Rua Parroquia de Rois, 18', '34673794352');
+INSERT INTO EmpresasProveedoras (nombre, direccion, numeroTelefono) VALUES ('Proveedor B', 'Calle Parroquia Bergondo, 35', '34667677584');
+INSERT INTO EmpresasProveedoras (nombre, direccion, numeroTelefono) VALUES ('Proveedor C', 'Poligono Piadela, 25', '34673799988');
+INSERT INTO EmpresasProveedoras (nombre, direccion, numeroTelefono) VALUES ('Proveedor D', 'Poligono Piadela, 34', '346714353');
+INSERT INTO EmpresasProveedoras (nombre, direccion, numeroTelefono) VALUES ('Proveedor E', 'Viuxe, 4', '34677676584');
+INSERT INTO EmpresasProveedoras (nombre, direccion, numeroTelefono) VALUES ('Proveedor F', 'Avenida Novo Mesoiro, 32', '34673479999');
+INSERT INTO EmpresasProveedoras (nombre, direccion, numeroTelefono) VALUES ('Proveedor G', 'Avenida Segunda, 5', '34673111224');
+INSERT INTO EmpresasProveedoras (nombre, direccion, numeroTelefono) VALUES ('Proveedor H', 'Via Edison, 247', '34670090584');
+INSERT INTO EmpresasProveedoras (nombre, direccion, numeroTelefono) VALUES ('Proveedor I', 'Camino Lascas, 9', '34670009884');
+
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor A', 'Av. Barcelona, 20', 'Harina', '2024-11-20 10:00:00', 145.43, 'Camion');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor B', 'Avenida do Mestre Mateo, 13', 'Garbanzos', '2024-11-20 12:00:00', 210.11, 'Furgoneta');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor C', 'Rua de Santa Marta de Arriba, 15', 'Cobe', '2024-11-20 14:00:00', 705.76, 'Furgoneta');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor D', 'Rua da Rosa, 12', 'Granos de cafe', '2024-11-20 10:00:00', 95.99, 'Camion');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor E', 'Calle de Garcia Blanco, 10', 'Lechuga', '2024-11-20 12:00:00', 125.43, 'Furgoneta');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor F', 'Rua de San Roque, 31', 'Calabacin', '2024-11-20 14:00:00', 385.99, 'Coche');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor G', 'Rua de Sar, 50', 'Pan', '2024-11-20 10:00:00', 250.98, 'Camion');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor H', 'Rua de Conxo de Arriba, 49', 'Vaca', '2024-11-20 12:00:00', 500.76, 'Furgoneta');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor I', 'Rua de Montero Rios, 24', 'Pescado', '2024-11-20 14:00:00', 400.65, 'Pick-uo');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor D', 'Av. Barcelona, 20', 'Azucar', '2024-11-25 10:00:00', 99.99, 'Furgoneta');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor E', 'Rua de Conxo de Arriba, 49', 'Tomate', '2024-11-25 11:00:00', 123.45, 'Camion');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor F', 'Rua de Santa Marta de Arriba, 15', 'Aceitunas', '2024-11-25 12:00:00', 150.67, 'Camion');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor G', 'Rua da Rosa, 12', 'Harina', '2024-11-25 13:00:00', 88.88, 'Coche');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor H', 'Avenida do Mestre Mateo, 13', 'Mantequilla', '2024-11-25 14:00:00', 190.50, 'Furgoneta');
+INSERT INTO Proveer (proveedor, restaurante, ingredientes, fechaHoraEntrega, precio, tipoTransporte) VALUES ('Proveedor I', 'Rua de San Roque, 31', 'Arroz', '2024-11-25 15:00:00', 210.30, 'Camion');
+
+INSERT INTO Encargados (dni, nombre, apellido1, apellido2, turno, numeroTelefono, curriculumVitae, restaurante, fechaComienzo, salario)
+VALUES
+('12345678A', 'Pedro', 'Lopez', 'Garcia', 'Mañana', '34670099884', 'Experiencia en gestión de equipos y atención al cliente.', 'Rua de Sar, 50', '2001-10-20', 1500.00),
+('87654321B', 'Anton', 'Fernandez', 'Martinez', 'Tarde', '34677919884', 'Amplio conocimiento en logística y organización de restaurantes.', 'Calle de Garcia Blanco, 10', '2004-01-05', 1600.00),
+('76587656T', 'Martin', 'Balado', 'Sanchez', 'Mañana', '34670995684', 'Capacitado en supervisión de turnos y resolución de conflictos.', 'Rua de Montero Rios, 24', '2003-08-31', 1200.00),
+('32143254R', 'Antonio', 'Fernandez', 'Viñas', 'Tarde', '34670987884', 'Experiencia en manejo de inventarios y coordinación de personal.', 'Rua de San Roque, 31', '2014-05-11', 950.00),
+('98712365U', 'Isabel', 'Lopez', 'Gomez', 'Mañana', '34670111184', 'Especialista en optimización de procesos y atención personalizada.', 'Avenida do Mestre Mateo, 13', '2010-11-17', 1200.00),
+('65791291K', 'Simplicio', 'Cuadrado', 'Martinez', 'Tarde', '34671222884', 'Habilidad para gestionar equipos en entornos de alta presión.', 'Rua da Rosa, 12', '2000-05-01', 1300.00),
+('43223443J', 'Alfredo', 'Garcia', 'Sisas', 'Mañana', '346703215884', 'Experiencia en liderazgo y formación de nuevos empleados.', 'Av. Barcelona, 20', '2008-12-10', 1250.00),
+('98778987D', 'Samuel', 'Cortes', 'Albertuz', 'Tarde', '34674219884', 'Enfoque en mejora de la experiencia del cliente y gestión de quejas.', 'Rua de Santa Marta de Arriba, 15', '2018-06-06', 1700.00),
+('36475832S', 'Pedro', 'Quesada', 'Rodriguez', 'Mañana', '34678413884', 'Capacitado en planificación de horarios y administración.', 'Rua de Conxo de Arriba, 49', '2015-09-15', 1150.00);
+
+INSERT INTO Cocineros (dni, nombre, apellido1, apellido2, turno, numeroTelefono, curriculumVitae, restaurante, fechaComienzo, salario, idChef) VALUES
+('56781234C', 'Diego', 'Ramirez', 'Hernandez', 'Noche', '34670009884', 'Especialista en cocina mediterránea y parrillas.', 'Rua de Conxo de Arriba, 49', '2011-01-17', 1200.00, null),
+('93456236D', 'Diego', 'Torres', 'Lopez', 'Noche', '34610305895', 'Experiencia en cocina internacional y técnicas de vanguardia.', 'Rua de Conxo de Arriba, 49', '2009-10-01', 1050.00, '56781234C'),
+('87654322D', 'Ana', 'Torres', 'Sanchez', 'Mañana', '34670019884', 'Experta en repostería y pastelería creativa.', 'Rua da Rosa, 12', '2012-10-04', 1100.00, '56781234C'),
+('12345679A', 'Lucas', 'Quiroga', 'Ferrer', 'Mañana', '34670029884', 'Amplio conocimiento en elaboración de platos regionales.', 'Av. Barcelona, 20', '2000-07-10', 1625.00, null),
+('87654323B', 'Julian', 'Brandon', 'Freijeiro', 'Tarde', '34670039884', 'Cocinero especializado en platos rápidos y de alta calidad.', 'Rua de Sar, 50', '2019-12-10', 1250.00, null),
+('12345680A', 'Dora', 'Gomez', 'Arjona', 'Mañana', '34670049884', 'Chef experta en cocina de autor y presentación creativa.', 'Rua de San Roque, 31', '2011-04-17', 1775.00, '87654323B'),
+('87654324B', 'Roi', 'Sueiro', 'Gude', 'Tarde', '34670059884', 'Enfocado en platos tradicionales gallegos.', 'Rua de Santa Marta de Arriba, 15', '2018-01-29', 1100.00, '12345679A'),
+('12345681A', 'Roman', 'Veiga', 'Saenz', 'Mañana', '34670069884', 'Cocinero con experiencia en servicios de banquetes.', 'Avenida do Mestre Mateo, 13', '2005-04-08', 900.00, null),
+('87654325B', 'Lucia', 'Souto', 'Mourelle', 'Tarde', '34670079884', 'Especialista en cocina vegetariana y saludable.', 'Calle de Garcia Blanco, 10', '2012-11-17', 850.00, null),
+('12345682A', 'Pedro', 'Mourelle', 'Garcia', 'Mañana', '34670089884', 'Cocinero experimentado en guisos y platos caseros.', 'Rua de Montero Rios, 24', '2001-01-05', 1150.00, '87654325B');
+
+INSERT INTO Camareros (dni, nombre, apellido1, apellido2, turno, numeroTelefono, curriculumVitae, restaurante, fechaComienzo, salario) VALUES
+('12398765E', 'Laura', 'Martinez', 'Gomez', 'Tarde', '346703215884', 'Experiencia en atención al cliente y manejo de grandes grupos.', 'Rua de Conxo de Arriba, 49', '2012-10-04', 1000.00),
+('92158634D', 'Alvaro', 'Lopez', 'Gomez', 'Noche', '346703205884', 'Habilidades en coctelería y servicio personalizado.', 'Rua de Conxo de Arriba, 49', '2002-01-05', 1200.00),
+('45612378F', 'Luis', 'Fernandez', 'Ruiz', 'Noche', '346701188890', 'Especializado en logística de eventos nocturnos.', 'Avenida do Mestre Mateo, 13', '2018-01-29', 1050.00),
+('12345683A', 'Pedro', 'Lopez', 'Garcia', 'Mañana', '342103252874', 'Enfocado en servicio eficiente y experiencia en cafeterías.', 'Av. Barcelona, 20', '2000-07-10', 1150.00),
+('87654326B', 'Lucia', 'Fernandez', 'Martinez', 'Tarde', '346744445884', 'Amplia experiencia en servicio en terraza y dinámicas de equipo.', 'Rua de Santa Marta de Arriba, 15', '2011-01-17', 1225.00),
+('12345684A', 'Adrian', 'Alborado', 'Garcia', 'Mañana', '346708789884', 'Especialista en protocolos de etiqueta y banquetes formales.', 'Rua de Sar, 50', '2005-04-08', 1675.00),
+('12345685A', 'Pedro', 'Castro', 'Lopez', 'Mañana', '346787678884', 'Habilidades en supervisión de personal y gestión de inventarios.', 'Rua da Rosa, 12', '2005-04-08', 1800.00),
+('87654327B', 'Julia', 'Fernandez', 'Martinez', 'Tarde', '346743215884', 'Experta en gestión de reservas y atención en barra.', 'Calle de Garcia Blanco, 10', '2012-10-04', 1525.00),
+('12345686A', 'Ramon', 'Gaitan', 'Castro', 'Mañana', '346703212985', 'Experiencia en hostelería y manejo de software de pedidos.', 'Rua de Montero Rios, 24', '2011-01-17', 1450.00),
+('87654328B', 'Lucia', 'Garcia', 'Belmonde', 'Tarde', '346776765884', 'Camarera especializada en eventos al aire libre.', 'Rua de San Roque, 31', '2005-04-08', 1235.00);
+
+
+
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido) VALUES ('Pizza', '12398765E', 1, 1);
+
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido) VALUES ('Hamburguesa', '87654327B', 2, 4);
+
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido) VALUES ('Ensalada', '12345685A', 3, 8);
+
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido) VALUES ('Pizza', '45612378F', 9, 2);
+
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido) VALUES ('Hamburguesa', '87654326B', 8, 6);
+
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido) VALUES ('Ensalada', '12345685A', 7, 5);
+
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido) VALUES ('Pizza', '12345684A', 6, 3);
+
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido) VALUES ('Hamburguesa', '12345684A', 5, 7);
+
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido) VALUES ('Ensalada', '12398765E', 4, 9);
+
+
+INSERT into Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (1, 'Rua da Rosa, 12', '2024-11-23 17:00:00', 4, '2024-11-29 15:43:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (2, 'Rua de Santa Marta de Arriba, 15', '2024-11-22 15:00:00', 6, '2024-12-08 14:23:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (3, 'Rua de San Roque, 31', '2024-11-24 18:00:00', 8, '2024-11-25 11:54:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (9, 'Avenida do Mestre Mateo, 13', '2024-11-12 19:00:00', 4, '2024-11-30 17:54:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (8, 'Av. Barcelona, 20', '2024-11-02 21:00:0', 6, '2024-11-15 15:54:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (7, 'Rua de Sar, 50', '2024-11-14 21:00:00', 8, '2024-11-21 12:43:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (6, 'Rua de Conxo de Arriba, 49', '2024-11-23 20:00:00', 4, '2024-11-30 12:14:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (5, 'Rua de Montero Rios, 24', '2024-11-30 19:00:00', 6, '2024-12-05 17:16:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (4, 'Calle de Garcia Blanco, 10', '2024-11-30 19:00:00', 8, '2024-11-01 18:34:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (4, 'Calle de Garcia Blanco, 10', '2024-12-01 15:00:00', 5, '2024-12-27 21:30:00');
+
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva) VALUES (4, 'Calle de Garcia Blanco, 10', '2025-01-30 19:00:00', 6, '2025-02-11 13:00:00');

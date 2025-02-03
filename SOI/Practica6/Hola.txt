@@ -1,0 +1,5 @@
+hola mundo ******!
+este es un ejemplo de texto con numeros y mayusculas.
+el numero **** se convertira en ****.
+el numero ******* se convertira en *******.
+fin.

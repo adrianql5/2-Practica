@@ -1,0 +1,141 @@
+CREATE OR REPLACE VIEW plato_mas_popular_de_cada_restaurante AS
+WITH
+-- Calculamos la frecuencia con la que se pide cada plato en cada restaurante
+PlatoFrecuencia AS (
+    SELECT
+        c.restaurante,                        -- Identificamos el restaurante
+        p.nombre AS plato,                    -- Renombramos el campo 'nombre' del plato como 'plato'
+        COUNT(*) AS frecuencia                -- Contamos cuántas veces se pidió cada plato
+    FROM
+        Pedir p                               -- Tabla que contiene información de pedidos
+        JOIN Camareros c                      -- Realizamos un JOIN con la tabla de camareros
+        ON p.camarero = c.dni                 -- Relacionamos el pedido con el camarero que lo atendió mediante su DNI
+    GROUP BY
+        c.restaurante,                        -- Agrupamos por restaurante
+        p.nombre                              -- Y por el nombre del plato
+),
+
+-- Identificamos la frecuencia máxima de cada restaurante
+MaxFrecuenciaPorRestaurante AS (
+    SELECT
+        restaurante,                          -- Restaurante al que pertenece el plato
+        MAX(frecuencia) AS max_frecuencia     -- Máxima frecuencia de pedidos en ese restaurante
+    FROM
+        PlatoFrecuencia                       -- Utilizamos la subconsulta anterior
+    GROUP BY
+        restaurante                           -- Agrupamos los resultados por restaurante
+)
+
+-- Seleccionamos el plato más popular de cada restaurante junto con su frecuencia
+SELECT
+    pf.restaurante AS restaurante,           -- Restaurante
+    pf.plato AS plato_mas_popular,           -- Plato más popular
+    pf.frecuencia AS veces_pedido            -- Número de veces que fue pedido
+FROM
+    PlatoFrecuencia pf                       -- Usamos la tabla de frecuencias calculadas
+    JOIN MaxFrecuenciaPorRestaurante mf      -- La unimos con las frecuencias máximas
+    ON
+        pf.restaurante = mf.restaurante      -- Coincidimos el restaurante
+        AND pf.frecuencia = mf.max_frecuencia; -- Y verificamos que la frecuencia del plato sea la máxima en ese restaurante
+
+CREATE OR REPLACE VIEW horario_trabajadores AS
+-- Seleccionamos los nombres, roles, horarios y restaurantes de todos los trabajadores,
+-- agrupándolos en una única vista mediante la unión de Cocineros, Camareros y Encargados.
+SELECT 
+    c.nombre AS nombre_trabajador, -- Nombre del trabajador
+    'Cocinero' AS rol,             -- Asignamos el rol de "Cocinero" a esta parte de la vista
+    c.turno AS horario,            -- Tomamos el turno como el horario de trabajo
+    c.restaurante,                 -- Dirección del restaurante donde trabaja el cocinero
+    r.nombre AS nombre_restaurante -- Nombre del restaurante donde trabaja el cocinero
+FROM Cocineros c                   -- Primera tabla: Cocineros
+JOIN restaurantes r ON c.restaurante = r.direccion   --Union con la tabla Restaurantes
+UNION ALL                          -- Usamos UNION ALL para combinar todas las filas de las consultas
+SELECT 
+    c2.nombre AS nombre_trabajador, -- Nombre del trabajador
+    'Camarero' AS rol,              -- Asignamos el rol de "Camarero" a esta parte de la vista
+    c2.turno AS horario,            -- Tomamos el turno como el horario de trabajo
+    c2.restaurante,                 -- Dirección del restaurante donde trabaja el cocinero
+    r2.nombre AS nombre_restaurante  -- Nombre del restaurante donde trabaja el cocinero
+FROM Camareros c2                    -- Segunda tabla: Camareros
+JOIN restaurantes r2 ON c2.restaurante = r2.direccion  --Union con la tabla Restaurantes
+UNION ALL                            -- Usamos UNION ALL para combinar todas las filas de las consultas
+SELECT 
+    e.nombre AS nombre_trabajador,   -- Nombre del trabajador
+    'Encargado' AS rol,              -- Asignamos el rol de "Encargado" a esta parte de la vista
+    e.turno AS horario,              -- Tomamos el turno como el horario de trabajo
+    e.restaurante,                   -- Dirección del restaurante donde trabaja el cocinero
+    r3.nombre AS nombre_restaurante  -- Nombre del restaurante donde trabaja el cocinero
+FROM Encargados e                    -- Tercera tabla: Encargados
+JOIN restaurantes r3 ON e.restaurante = r3.direccion;  --Union con la tabla Restaurantes                          
+
+CREATE OR REPLACE VIEW ClientesMasFrecuentes AS
+-- Creamos una vista que muestra los clientes que han realizado más de dos reservas en cada restaurante.
+SELECT
+    c.nombre AS cliente,              -- Nombre del cliente
+    r.nombre AS restaurante,          -- Nombre del restaurante
+    COUNT(re.idcliente) AS numerodereservas -- Número total de reservas realizadas por el cliente en ese restaurante
+FROM clientes AS c                    -- Tabla de clientes
+JOIN
+    reservar AS re                    -- Tabla de reservas
+    ON (c.idcliente = re.idcliente)  -- Relacionamos los clientes con sus reservas mediante el campo idcliente
+JOIN
+    restaurantes AS r                 -- Tabla de restaurantes
+    ON (re.direccion = r.direccion)  -- Relacionamos las reservas con los restaurantes mediante la dirección
+GROUP BY
+    c.nombre,                         -- Agrupamos por el nombre del cliente
+    r.nombre                          -- Agrupamos por el nombre del restaurante
+HAVING
+    COUNT(re.idcliente) > 2;          -- Filtramos los grupos donde el número de reservas supera 2
+
+
+CREATE OR REPLACE VIEW proveedores_exclusivos AS
+-- Creamos una vista para identificar proveedores exclusivos (aquellos que abastecen únicamente a un restaurante).
+SELECT
+    proveedor,                             -- Nombre o identificador del proveedor
+    MIN(restaurante) AS restaurante        -- El restaurante que abastece (si solo es uno, será el único valor)
+FROM
+    Proveer                                -- Tabla que relaciona proveedores con restaurantes
+GROUP BY
+    proveedor                              -- Agrupamos por proveedor
+HAVING
+    COUNT(DISTINCT restaurante) = 1;      -- Filtramos para incluir solo proveedores que abastecen exactamente a un restaurante
+
+
+CREATE OR REPLACE VIEW InformacionRestaurantes AS
+-- Creamos una vista que proporciona información detallada de los restaurantes:
+-- Número de clientes y trabajadores de cada restaurante.
+SELECT
+    R.nombre AS nombreRestaurante,         -- Nombre del restaurante
+    COALESCE(
+        COUNT(DISTINCT P.idCliente) +      -- Número de clientes que han pedido algo
+        COUNT(DISTINCT Res.idCliente),    -- Número de clientes que han realizado reservas
+        0                                 -- Si no hay clientes, devuelve 0
+    ) AS numeroClientes,
+    COALESCE(
+        (SELECT COUNT(*)                   -- Contamos los encargados asociados al restaurante
+         FROM Encargados E
+         WHERE E.restaurante = R.direccion) +
+        (SELECT COUNT(*)                   -- Contamos los cocineros asociados al restaurante
+         FROM Cocineros C
+         WHERE C.restaurante = R.direccion) +
+        (SELECT COUNT(*)                   -- Contamos los camareros asociados al restaurante
+         FROM Camareros Cam
+         WHERE Cam.restaurante = R.direccion),
+    0) AS numeroTrabajadores              -- Si no hay trabajadores, devuelve 0
+FROM
+    Restaurantes R                        -- Tabla principal con los restaurantes
+LEFT JOIN (
+    SELECT
+        C.restaurante AS direccion,       -- Dirección del restaurante
+        P.idCliente                       -- Cliente que hizo un pedido
+    FROM Pedir P
+    JOIN Camareros C                      -- Relacionamos pedidos con camareros que tomaron esos pedidos
+    ON P.camarero = C.dni
+) P
+ON R.direccion = P.direccion             -- Relacionamos restaurantes con pedidos realizados
+LEFT JOIN Reservar Res                    -- Relacionamos restaurantes con las reservas realizadas
+ON R.direccion = Res.direccion
+GROUP BY
+    R.nombre,                             -- Agrupamos por nombre del restaurante
+    R.direccion;                          -- Agrupamos por dirección del restaurante
+

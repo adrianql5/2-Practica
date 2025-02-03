@@ -1,0 +1,133 @@
+-- Consultas con reuniones --
+
+-- Consulta 1 --
+-- Obtenemos una lista de clientes que han realizado pedidos, junto con su nombre, su numero de telefono, nombre del plato pedido e identificador del pedido.
+
+SELECT Clientes.nombre, Clientes.numeroTelefono, Pedir.nombre AS plato, Pedir.idPedido
+FROM Clientes
+INNER JOIN Pedir ON Clientes.idCliente = Pedir.idCliente;
+
+
+-- Consulta 2 --
+-- Listamos los nombres de los camareros junto con el nombre del restaurante en el que trabajan.
+SELECT
+	Camareros.Nombre AS Camarero,
+	Restaurantes.Nombre AS Restaurante
+FROM
+	Camareros
+JOIN
+	Restaurantes ON Camareros.restaurante = Restaurantes.direccion;
+
+-- Consulta 3 --
+-- Obtenemos una lista de los clientes que han hecho reservas, junto con el nombre del restaurante donde realizaron la reserva.
+SELECT
+	Clientes.nombre AS Cliente,
+	Restaurantes.nombre AS Restaurante
+FROM
+	Clientes
+JOIN
+	Reservar ON Clientes.idCliente = Reservar.idCliente
+JOIN
+	Restaurantes ON Reservar.direccion = Restaurantes.direccion;
+
+-- Consulta 4 --
+-- Mostramos los nombres de los restaurantes y los proveedores que los abastecen.
+SELECT
+	Restaurantes.nombre AS Restaurante,
+	EmpresasProveedoras.nombre AS Proveedor
+FROM
+	Restaurantes
+JOIN
+	Proveer ON Restaurantes.direccion = Proveer.restaurante
+JOIN
+	EmpresasProveedoras ON Proveer.proveedor = EmpresasProveedoras.nombre;
+
+-- Consulta 5 --
+-- Calculamos el total de camareros que trabajan en cada restaurante y lo agrupamos por el nombre del restaurante.
+SELECT
+	Restaurantes.nombre AS Restaurante, COUNT(Camareros.dni) AS TotalCamareros
+FROM
+	Restaurantes
+JOIN
+	Camareros ON Restaurantes.direccion = Camareros.restaurante
+GROUP BY Restaurantes.nombre;
+
+-- Consulta 6 --
+-- Obtenemos una lista de los platos y los proveedores que suministran los ingredientes para esos platos.
+SELECT
+	Platos.nombre AS Plato,
+	EmpresasProveedoras.nombre AS Proveedor
+FROM
+	Platos
+JOIN
+	Ingredientes ON Platos.nombre = Ingredientes.plato
+JOIN
+	Proveer ON Ingredientes.ingrediente = Proveer.ingredientes
+JOIN
+	EmpresasProveedoras ON Proveer.proveedor = EmpresasProveedoras.nombre;
+
+-- Consulta 7 --
+-- Mostramos el nombre del encargado, el restaurante donde trabaja, y el número de trabajadores a su cargo.
+SELECT
+    Encargados.nombre AS Encargado,
+    Restaurantes.nombre AS Restaurante,
+    TotalTrabajadores.NumeroTrabajadores AS NumeroDeTrabajadores
+FROM
+    Encargados
+JOIN
+    Restaurantes ON Encargados.restaurante = Restaurantes.direccion
+JOIN (
+    -- Subconsulta para contar el número de trabajadores (sin incluir a los encargados) por restaurante.
+    SELECT
+        restaurante,
+        COUNT(*) AS NumeroTrabajadores
+    FROM (
+        SELECT restaurante FROM Camareros
+        UNION ALL
+        SELECT restaurante FROM Cocineros
+    ) AS TodosLosTrabajadores -- Excluimos a los encargados.
+    GROUP BY restaurante
+) AS TotalTrabajadores ON Restaurantes.direccion = TotalTrabajadores.restaurante
+WHERE
+    TotalTrabajadores.NumeroTrabajadores > 1; -- Filtro para restaurantes con más de 2 trabajadores
+
+
+-- Consulta 8 --
+-- Mostramos los nombres de los platos pedidos junto con los clientes que los solicitaron, pero solo en el restaurante ubicado en "Rua de Conxo de Arriba, 49".
+SELECT
+    Pedir.nombre AS Plato,
+    Clientes.nombre AS Cliente
+FROM
+    Pedir
+JOIN
+    Clientes ON Pedir.idCliente = Clientes.idCliente
+JOIN
+    Camareros ON Pedir.camarero = Camareros.dni
+WHERE
+    Camareros.restaurante = 'Rua de Conxo de Arriba, 49';
+
+
+
+
+-- Consulta 9 --
+-- Generamos una lista que muestra que ingredientes son suministrados a que restaurante, a que precio, y quien los suministra.
+
+SELECT Restaurantes.nombre AS restaurante, Proveer.ingredientes, Proveer.precio, EmpresasProveedoras.nombre AS proveedor
+FROM Restaurantes
+INNER JOIN Proveer ON Restaurantes.direccion = Proveer.restaurante
+INNER JOIN EmpresasProveedoras ON Proveer.proveedor = EmpresasProveedoras.nombre;
+
+
+-- Consulta 10 --
+-- Obtenemos una lista de los clientes y los camareros que trabajan en los restaurantes donde esos clientes hicieron reservas.
+SELECT
+	Clientes.nombre AS Cliente,
+	Camareros.nombre AS Camarero
+FROM
+	Clientes
+JOIN
+	Reservar ON Clientes.idCliente = Reservar.idCliente
+JOIN
+	Restaurantes ON Reservar.direccion = Restaurantes.direccion
+JOIN
+	Camareros ON Restaurantes.direccion = Camareros.restaurante;

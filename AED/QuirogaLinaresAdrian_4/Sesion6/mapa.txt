@@ -1,0 +1,24 @@
+Winterfell|Harrenhal|1870.000000|t|
+Riverrun|Harrenhal|410.000000|t|
+Riverrun|Winterfell|2290.000000|t|
+Casterly Rock|Riverrun|680.000000|t|
+Lannisport|Casterly Rock|64.000000|t|
+King's Landing|Winterfell|2300.000000|t|
+King's Landing|Riverrun|1300.000000|t|
+King's Landing|Casterly Rock|1340.000000|t|
+Iron Islands|Lannisport|1050.000000|s|
+Cerwyn|Winterfell|160.000000|t|
+Deepwood Motte|Winterfell|560.000000|t|
+White Harbor|Winterfell|550.000000|t|
+Dreadfort|Winterfell|560.000000|t|
+Castle Black|Winterfell|1050.000000|t|
+Moat Cailin|Cerwyn|420.000000|t|
+Bear Island|Iron Islands|2415.000000|s|
+Bear Island|Deepwood Motte|225.000000|s|
+Seagard|Riverrun|400.000000|t|
+Seagard|Iron Islands|500.000000|s|
+Dragon Stone|Riverrun|960.000000|t|
+Highgarden|King's Landing|1220.000000|t|
+Old Town|Highgarden|530.000000|t|
+The Arbor|Old Town|480.000000|s|
+Storm's End|King's Landing|630.000000|t|

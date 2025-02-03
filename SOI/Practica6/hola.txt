@@ -1,0 +1,5 @@
+Hola Mundo 123!
+Este es un Ejemplo de Texto con Numeros y MAYUSCULAS.
+El numero 4 se convertira en ****.
+El numero 7 se convertira en *******.
+FIN.

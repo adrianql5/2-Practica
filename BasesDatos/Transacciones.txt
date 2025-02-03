@@ -1,0 +1,79 @@
+--Modificar el horario de cierre y apertura de un restaurante
+BEGIN;
+
+-- Verificar que el restaurante existe
+SELECT * FROM Restaurantes WHERE direccion = 'Rua de Conxo de Arriba, 49' FOR UPDATE;
+
+-- Actualizar horarios
+UPDATE Restaurantes
+SET horarioApertura = '09:00:00', horarioCierre = '21:00:00'
+WHERE direccion = 'Rua de Conxo de Arriba, 49';
+
+COMMIT;
+
+
+--Cancelar una reserva
+BEGIN;
+
+-- Obtener el número de personas de la reserva
+SELECT numeroPersonas FROM Reservar
+WHERE idCliente = 4 AND direccion = 'Calle de Garcia Blanco, 10' AND fechaHoraReserva = '2024-12-27 21:30:00.000'
+FOR UPDATE;
+
+-- Eliminar la reserva
+DELETE FROM Reservar
+WHERE idCliente = 4 AND direccion = 'Calle de Garcia Blanco, 10' AND fechaHoraReserva = '2024-12-27 21:30:00.000';
+-- Actualizar aforo
+UPDATE Restaurantes
+SET aforo = aforo + 5
+WHERE direccion = 'Calle de Garcia Blanco, 10';
+
+COMMIT;
+
+
+
+--Asginar un cocinero ayudante a un chef
+BEGIN;
+
+-- Verificar que el chef existe
+SELECT * FROM Cocineros WHERE dni = '56781234C' FOR UPDATE;
+
+-- Actualizar cocinero
+UPDATE Cocineros
+SET idChef = '56781234C'
+WHERE dni = '12345682A';
+
+COMMIT;
+
+
+-- Reservar una mesa
+BEGIN;
+
+-- Verificar aforo disponible
+SELECT aforo FROM Restaurantes WHERE direccion = 'Calle de Garcia Blanco, 10' FOR UPDATE;
+
+-- Insertar la reserva
+INSERT INTO Reservar (idCliente, direccion, fechaHoraRealizacion, numeroPersonas, fechaHoraReserva)
+VALUES (4, 'Calle de Garcia Blanco, 10', CURRENT_TIMESTAMP, 4, '2024-12-20 20:00:00');
+
+-- Reducir aforo
+UPDATE Restaurantes
+SET aforo = aforo - 4
+WHERE direccion = 'Calle de Garcia Blanco, 10';
+
+COMMIT;
+
+-- Registrar un pedido
+BEGIN;
+
+-- Verificar que el cliente existe
+SELECT * FROM Clientes WHERE idCliente = 1 FOR UPDATE;
+
+-- Verificar que el camarero está disponible
+SELECT * FROM Camareros WHERE dni = '12398765E' FOR UPDATE;
+
+-- Registrar el pedido
+INSERT INTO Pedir (nombre, camarero, idCliente, idPedido)
+VALUES ('Entrecot', '12398765E', 2, 1001);
+
+COMMIT;

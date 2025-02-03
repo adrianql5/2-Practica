@@ -1,0 +1,57 @@
+-- 1. ¿Cuántos camareros trabajan en un restaurante específico?
+-- Contamos el número total de camareros que trabajan en el restaurante ubicado en "Rua de Conxo de Arriba, 49".
+SELECT COUNT(*) AS TotalCamareros
+FROM Camareros
+WHERE restaurante = 'Rua de Conxo de Arriba, 49';
+
+-- 2. Lista de empresas proveedoras registradas.
+-- Mostramos los nombres de todas las empresas proveedoras registradas en el sistema.
+SELECT Nombre
+FROM EmpresasProveedoras;
+
+-- 3. Obtener los datos de un plato específico por su nombre.
+-- Seleccionamos todos los datos del plato cuyo nombre sea "Cocido".
+SELECT *
+FROM Platos
+WHERE nombre = 'Cocido';
+
+-- 4. ¿Cuántos platos hay registrados en el sistema?
+-- Contamos cuántos platos diferentes están registrados.
+SELECT COUNT(nombre) AS TotalPlatos
+FROM Platos;
+
+-- 5. Obtener el número total de empresas proveedoras registradas en el sistema.
+-- Contamos el total de empresas proveedoras registradas.
+SELECT COUNT(nombre) AS TotalEmpresas
+FROM EmpresasProveedoras;
+
+-- 6. Obtener los nombres y precios de los platos que cuestan más de $20.
+-- Listamos el nombre y precio de todos los platos cuyo precio es mayor a 20.
+SELECT nombre, precio
+FROM Platos
+WHERE precio > 20;
+
+-- 7. Mostrar todos los datos de un cliente específico utilizando su nombre.
+-- Seleccionamos todos los campos del cliente cuyo nombre sea "Juan".
+SELECT *
+FROM Clientes
+WHERE nombre = 'Juan';
+
+-- 8. Obtener el promedio de salarios de los camareros en el sistema.
+-- Calculamos el salario promedio de los camareros.
+-- Nota: Probar esta consulta solo si la tabla tiene datos con salarios.
+SELECT AVG(salario) AS PromedioSalario
+FROM Camareros;
+
+-- 9. Obtener la cantidad de platos que cuestan menos de $10.
+-- Contamos cuántos platos tienen un precio menor a 10.
+SELECT COUNT(nombre) AS PlatosBaratos
+FROM Platos
+WHERE precio < 10;
+
+-- 10. Mostrar los nombres y apellidos de los camareros cuyo salario sea mayor a $1500.
+-- Listamos el nombre, primer apellido y segundo apellido de los camareros que tienen un salario superior a $1500.
+-- Nota: Probar esta consulta solo si la tabla tiene datos con salarios.
+SELECT nombre, apellido1, apellido2
+FROM Camareros
+WHERE salario > 1500;
